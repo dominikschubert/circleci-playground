@@ -53,7 +53,7 @@ jobs:
       - run:
           name: Run tests
           command: |
-            ls repo/target/reports
+            ls target/reports
 
 workflows:
   sample:
