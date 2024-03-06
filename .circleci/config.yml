@@ -1,12 +1,24 @@
 version: 2.1
 
 jobs:
+  install:
+    working_directory: /tmp/workspace/repo
+    steps:
+      - checkout
+      - persist_to_workspace:
+          root:
+            /tmp/workspace
+          paths:
+            - repo
+
   build-and-test:
+    working_directory: /tmp/workspace/repo
     parallelism: 2
     docker:
       - image: cimg/python:3.11
     steps:
-      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: Install deps
           command: |
@@ -15,15 +27,37 @@ jobs:
           name: Run tests
           command: |
             set -e
-            TEST_FILES=$(circleci tests glob "tests/**/test_*.py" | circleci tests split --split-by=timings)
+            TEST_FILES=$(circleci tests glob "tests/**/test_*.py" | circleci tests split --verbose --split-by=timings)
             echo $TEST_FILES
             mkdir -p target
-            python -m pytest --verbose -o junit_family=legacy --junitxml=target/junit-something.xml $TEST_FILES
+            python -m pytest --verbose -o junit_family=legacy --junitxml=target/reports/junit-something.xml $TEST_FILES
       - store_test_results:
-          path: target
+          path: target/reports/
       - store_artifacts:
-          path: target
+          path: target/reports/
+      - persist_to_workspace:
+          root:
+            /tmp/workspace
+          paths:
+            - repo/target/reports/
+
+  endresult:
+    working_directory: /tmp/workspace/repo
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Run tests
+          command: |
+            ls repo/target/reports
+
 workflows:
   sample:
     jobs:
-      - build-and-test
+      - install
+      - build-and-test:
+          requires:
+            - install
+      - endresult:
+          requires:
+            - build-and-test
