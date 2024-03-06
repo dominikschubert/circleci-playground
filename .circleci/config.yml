@@ -3,6 +3,8 @@ version: 2.1
 jobs:
   install:
     working_directory: /tmp/workspace/repo
+    docker:
+      - image: cimg/python:3.11
     steps:
       - checkout
       - persist_to_workspace:
@@ -43,6 +45,8 @@ jobs:
 
   endresult:
     working_directory: /tmp/workspace/repo
+    docker:
+      - image: cimg/python:3.11
     steps:
       - attach_workspace:
           at: /tmp/workspace
