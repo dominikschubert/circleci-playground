@@ -18,7 +18,7 @@ jobs:
             TEST_FILES=$(circleci tests glob "tests/**/test_*.py" | circleci tests split --split-by=timings)
             echo $TEST_FILES
             mkdir -p target
-            pythom -m pytest --verbose --junitxml=target/junit-something.xml $TEST_FILES
+            python -m pytest --verbose --junitxml=target/junit-something.xml $TEST_FILES
       - store_test_results:
           path: target
       - store_artifacts:
