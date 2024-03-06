@@ -24,7 +24,11 @@ jobs:
       - run:
           name: Install deps
           command: |
-            pip install pytest
+            pip install pytestworkspace
+      - run:
+          name: test detection
+          command: |
+            circleci tests glob "tests/**/test_*.py"
       - run:
           name: Run tests
           command: |
